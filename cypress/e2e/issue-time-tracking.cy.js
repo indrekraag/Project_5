@@ -24,16 +24,22 @@ describe("Issue time tracking", () => {
   const timeSpent = "8";
   const timeRemaining = "2";
 
-  it("Should create issue and add, change and remove time estimate", () => {
-    // Add the details required for issue creation
+  it("Should create issue and check time estimation functionality (Add, edit, assert, remove", () => {
     IssueTT.createIssue(issueDetails);
     IssueTT.assertIssueCreated(issueDetails, expectedAmountOfIssues);
-    //IssueTT.addTime(estimate, issueDetails.title);
-    //IssueTT.assertAddTimeWorked(estimate, issueDetails.title);
-    //IssueTT.addNewTime(estimate2, issueDetails.title);
-    //IssueTT.assertAddNewTimeWorked(estimate2, issueDetails.title);
-    //IssueTT.removeNewTime(estimate2, issueDetails.title);
-    //IssueTT.assertRemoveNewTimeWorked(issueDetails.title);
+    IssueTT.addTime(estimate, issueDetails.title);
+    IssueTT.assertAddTimeWorked(estimate, issueDetails.title);
+    IssueTT.addNewTime(estimate2, issueDetails.title);
+    IssueTT.assertAddNewTimeWorked(estimate2, issueDetails.title);
+    IssueTT.removeNewTime(issueDetails.title);
+    IssueTT.assertRemoveNewTimeWorked(issueDetails.title);
     IssueTT.addTimeSpent(timeSpent, timeRemaining, issueDetails.title);
+    IssueTT.assertTimeSpent(timeSpent, timeRemaining, issueDetails.title);
+    IssueTT.removeTimeSpent(timeSpent, timeRemaining, issueDetails.title);
+    IssueTT.assertRemoveTimeSpentWorked(
+      timeSpent,
+      timeRemaining,
+      issueDetails.title
+    );
   });
 });

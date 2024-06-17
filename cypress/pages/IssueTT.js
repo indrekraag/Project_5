@@ -19,7 +19,7 @@ class IssueTT {
     this.closeDetailModalBtn = '[data-testid="icon:close"]';
     this.stopWatch = '[data-testid="icon:stopwatch"]';
     this.trackingModal = '[data-testid="modal:tracking"]';
-    this.timeSpentHours = 'input[placeholder="Number"]';
+    this.timeSpentHours = "Time spent (hours)";
     this.timeRemainingHours = "Time remaining (hours)";
     this.doneButton = "Done";
   }
@@ -47,9 +47,9 @@ class IssueTT {
     cy.get(this.assignee).click("bottomRight");
     cy.get('[data-testid="select-option:Pickle Rick"]').click();
   }
-
+  //Creates a new issue
   createIssue(issueDetails) {
-    cy.get(this.createIssueBtn);
+    //cy.get(this.createIssueBtn).click();
     this.getIssueModal().within(() => {
       this.selectIssueType();
       this.editDescription(issueDetails.description);
@@ -58,7 +58,7 @@ class IssueTT {
       cy.get(this.submitButton).click();
     });
   }
-
+  //Checks if issue is created and visible in Backlog
   assertIssueCreated(issueDetails, _expectedAmountOfIssues) {
     cy.get(this.issueModal).should("not.exist");
     cy.reload();
@@ -74,7 +74,7 @@ class IssueTT {
           .contains(issueDetails.title);
       });
   }
-
+  //Creates new time estimation to the issue
   addTime(estimate, title) {
     cy.get(this.backlogList).contains(title).click();
     cy.get(this.issueDetailModal).within(() => {
@@ -83,7 +83,7 @@ class IssueTT {
       cy.get(this.closeDetailModalBtn).first().click();
     });
   }
-
+  //Checks if time estimation is entered
   assertAddTimeWorked(estimate, title) {
     cy.get(this.backlogList).contains(title).click();
     cy.get(this.issueDetailModal).within(() => {
@@ -91,6 +91,7 @@ class IssueTT {
       cy.get(this.closeDetailModalBtn).first().click();
     });
   }
+  //Edits the entered time estimaton
   addNewTime(estimate2, title) {
     cy.get(this.backlogList).contains(title).click();
     cy.get(this.issueDetailModal).within(() => {
@@ -98,6 +99,7 @@ class IssueTT {
       cy.get(this.closeDetailModalBtn).first().click();
     });
   }
+  //Checks if the edited time estimation remains
   assertAddNewTimeWorked(estimate2, title) {
     cy.get(this.backlogList).contains(title).click();
     cy.get(this.issueDetailModal).within(() => {
@@ -105,13 +107,15 @@ class IssueTT {
       cy.get(this.closeDetailModalBtn).first().click();
     });
   }
-  removeNewTime(estimate2, title) {
+  //Removes the estimated time
+  removeNewTime(title) {
     cy.get(this.backlogList).contains(title).click();
     cy.get(this.issueDetailModal).within(() => {
       cy.get(this.inputNumber).clear().wait(1000);
       cy.get(this.closeDetailModalBtn).first().click();
     });
   }
+  //Checks if time estimation was removed
   assertRemoveNewTimeWorked(title) {
     cy.get(this.backlogList).contains(title).click();
     cy.get(this.issueDetailModal).within(() => {
@@ -119,31 +123,57 @@ class IssueTT {
       cy.get(this.closeDetailModalBtn).first().click();
     });
   }
+  //Inserts spent and remaining time to the issue
   addTimeSpent(timeSpent, timeRemaining, title) {
     cy.get(this.backlogList).contains(title).click();
     cy.get(this.issueDetailModal).within(() => {
-      cy.contains(this.noTimeLogged).should("exist").click().wait(6000);
-      //cy.get(this.stopWatch).click();
-      //cy.get(this.noTimeLogged).click();
-      cy.get(this.trackingModal)
-        .should("be.visible")
-        .within(() => {
-          //cy.get(this.trackingModal).should("be.visible");
-          //cy.get(this.trackingModal).within(() => {
-          cy.contains(this.timeSpentHours)
-            .first()
-            .clear()
-            .type(timeSpent)
-            .wait(1000);
-          //cy.get(this.inputNumber).first().clear().type(timeSpent).wait(1000);
-          cy.contains(this.timeRemainingHours);
-          cy.get(this.inputNumber)
-            .last()
-            .clear()
-            .type(timeRemaining)
-            .wait(1000);
-          cy.get(this.doneButton).click();
-        });
+      cy.get(this.stopWatch).click();
+    });
+    cy.get(this.trackingModal)
+      .should("be.visible")
+      .within(() => {
+        cy.get(this.inputNumber).first().clear().type(timeSpent).wait(1000);
+        cy.get(this.inputNumber).last().clear().type(timeRemaining).wait(1000);
+        cy.contains(this.doneButton).click();
+      });
+    cy.get(this.issueDetailModal).within(() => {
+      cy.contains(this.noTimeLogged).should("not.exist");
+      cy.get(this.closeDetailModalBtn).first().click();
+    });
+  }
+  //Checks if spent and remaining time was inserted
+  assertTimeSpent(timeSpent, timeRemaining, title) {
+    cy.get(this.backlogList).contains(title).click();
+    cy.get(this.issueDetailModal).within(() => {
+      cy.contains(`${timeSpent}h logged`).should("be.visible");
+      cy.contains(`${timeRemaining}h remaining`).should("be.visible");
+      cy.get(this.closeDetailModalBtn).first().click();
+    });
+  }
+  //Removes spent and remaining time
+  removeTimeSpent(timeSpent, timeRemaining, title) {
+    cy.get(this.backlogList).contains(title).click();
+    cy.get(this.issueDetailModal).within(() => {
+      cy.get(this.stopWatch).click();
+    });
+    cy.get(this.trackingModal)
+      .should("be.visible")
+      .within(() => {
+        cy.get(this.inputNumber).first().clear().wait(1000);
+        cy.get(this.inputNumber).last().clear().wait(1000);
+        cy.contains(this.doneButton).click();
+      });
+    cy.get(this.issueDetailModal).within(() => {
+      cy.contains(this.noTimeLogged).should("exist");
+      cy.get(this.closeDetailModalBtn).first().click();
+    });
+  }
+  //Checks if spent and remaining time was removed
+  assertRemoveTimeSpentWorked(timeSpent, timeRemaining, title) {
+    cy.get(this.backlogList).contains(title).click();
+    cy.get(this.issueDetailModal).within(() => {
+      cy.contains(this.noTimeLogged).should("be.visible");
+      cy.get(this.closeDetailModalBtn).first().click();
     });
   }
 }
